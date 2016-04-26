@@ -140,15 +140,15 @@ char *Get_Label_Name(int Destination, char **LabelComment) {
 	for (i = 0; i < JumpCall_Count; i++) {
 		if ((JumpCalls[i].To) == Destination) {
 			if (JumpCalls[i].FunctionCall) {
-				snprintf(Buffer, sizeof(Buffer), "Function%d", JumpCalls[i].LabelNumber);
+ 				snprintf(Buffer, sizeof(Buffer), "Function_0x%x", JumpCalls[i].To);
 			} else {
-				snprintf(Buffer, sizeof(Buffer), "Label%d", JumpCalls[i].LabelNumber);
+        snprintf(Buffer, sizeof(Buffer), "Label_0x%x", JumpCalls[i].To);
 			}
 			return Buffer;
 		}
 	}
 	
-	snprintf(Buffer, sizeof(Buffer), "UNKNOWN");
+  snprintf(Buffer, sizeof(Buffer), "UNKNOWN(0x%x)",Destination);
 	return Buffer;
 }
 

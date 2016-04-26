@@ -28,6 +28,8 @@
 #define TYPE_WORD		2
 #define TYPE_ASTRING	3
 #define TYPE_STRING		4
+#define TYPE_STRING8		5
+#define TYPE_STRING16		6
 
 int Read_Tagfile(const char *Filename);
 int Tagfile_FindLabelAddress(int Address);

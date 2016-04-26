@@ -189,6 +189,8 @@ static void Tagfile_Readline(char *Line, int LineNo) {
 		case 'W': Subtype = TYPE_WORD; break;
 		case 'A': Subtype = TYPE_ASTRING; break;
 		case 'S': Subtype = TYPE_STRING; break;
+		case '8': Subtype = TYPE_STRING8; break;
+		case '6': Subtype = TYPE_STRING16; break;
 		default : Subtype = 0;
 	}
 	if (!Subtype) {
@@ -380,6 +382,55 @@ static int Tagfile_Process_String(char *Bitstream, int Position, int ArgumentNo,
 	return i + 1;
 }
 
+static int Tagfile_Process_String8(char *Bitstream, int Position, int ArgumentNo, const char *Label) {
+	int i;
+	unsigned char c;
+	unsigned int InString = 0;
+
+	printf("String_0x%s_%d:    ; Address 0x%x (%d)\n", Label, ArgumentNo, Position, Position);
+	i = 0;
+	while (i<8) {
+		c = ((unsigned char*)Bitstream)[Position + i];
+		if ((c >= 32) && (c <= 127)) {
+			if (!InString) printf(".ascii \"");
+			printf("%c", c);
+			InString = 1;
+		} else {
+			if (InString) printf("\"\n");
+			printf(".byte 0x%02x\n", c);
+			InString = 0;
+		}
+		i++;
+	}
+	printf("\"\n");
+	return 8;
+}
+
+static int Tagfile_Process_String16(char *Bitstream, int Position, int ArgumentNo, const char *Label) {
+	int i;
+	unsigned char c;
+	unsigned int InString = 0;
+
+	printf("String_0x%s_%d:    ; Address 0x%x (%d)\n", Label, ArgumentNo, Position, Position);
+	i = 0;
+	while (i<16) {
+		c = ((unsigned char*)Bitstream)[Position + i];
+		if ((c >= 32) && (c <= 127)) {
+			if (!InString) printf(".ascii \"");
+			printf("%c", c);
+			InString = 1;
+		} else {
+			if (InString) printf("\"\n");
+			printf(".byte 0x%02x\n", c);
+			InString = 0;
+		}
+		i++;
+	}
+	
+	printf("\"\n");
+	return 16;
+}
+
 static void Sanitize_String(char *String) {
 	size_t i;
 	size_t l = strlen(String);
@@ -406,6 +457,8 @@ int Tagfile_Process_Data(char *Bitstream, int Position) {
 		case TYPE_WORD: ProcessingFunction = Tagfile_Process_Word; break;
 		case TYPE_ASTRING: ProcessingFunction = Tagfile_Process_String; break;
 		case TYPE_STRING: ProcessingFunction = Tagfile_Process_String; break;
+ 		case TYPE_STRING8: ProcessingFunction = Tagfile_Process_String8; break;
+ 		case TYPE_STRING16: ProcessingFunction = Tagfile_Process_String16; break;
 	}
 
 	printf("; Inline PGM data: %d ", PGMLabels[Index].Count);
@@ -414,6 +467,8 @@ int Tagfile_Process_Data(char *Bitstream, int Position) {
 		case TYPE_WORD: printf("word"); break;
 		case TYPE_ASTRING: printf("autoaligned string"); break;
 		case TYPE_STRING: printf("string"); break;
+ 		case TYPE_STRING8: printf("string"); break;
+ 		case TYPE_STRING16: printf("string"); break;
 	}
 	if (PGMLabels[Index].Count != 1) printf("s");
 	printf(" starting at 0x%x", Position);
@@ -423,7 +478,8 @@ int Tagfile_Process_Data(char *Bitstream, int Position) {
 	}
 	printf("\n");
 
-	if ((PGMLabels[Index].Type == TYPE_ASTRING) || (PGMLabels[Index].Type == TYPE_STRING)) {
+	if ((PGMLabels[Index].Type == TYPE_ASTRING) || (PGMLabels[Index].Type == TYPE_STRING) ||
+      (PGMLabels[Index].Type == TYPE_STRING8) || (PGMLabels[Index].Type == TYPE_STRING16)) {
 		if (PGMLabels[Index].Comment != NULL) {
 			snprintf(Buffer, sizeof(Buffer), "%x_%s", Position, PGMLabels[Index].Comment);
 			Sanitize_String(Buffer);

@@ -576,7 +576,32 @@ int main(int argc, char **argv) {
 		Supersede_Opcode(movw_Callback_PC,	OPCODE_movw);
 		Supersede_Opcode(adiw_Callback_PC,	OPCODE_adiw);
 		Supersede_Opcode(lpm1_Callback_PC,	OPCODE_lpm_1);
+    Supersede_Opcode(st1_Callback_PC,	OPCODE_st_1);
 		Supersede_Opcode(st2_Callback_PC,	OPCODE_st_2);
+    Supersede_Opcode(st3_Callback_PC,	OPCODE_st_3);
+ 		Supersede_Opcode(sty1_Callback_PC,	OPCODE_st_4);
+ 		Supersede_Opcode(sty2_Callback_PC,	OPCODE_st_5);
+ 		Supersede_Opcode(sty3_Callback_PC,	OPCODE_st_6);
+ 		Supersede_Opcode(sty4_Callback_PC,	OPCODE_std_1);
+ 		Supersede_Opcode(stz1_Callback_PC,	OPCODE_st_7);
+ 		Supersede_Opcode(stz2_Callback_PC,	OPCODE_st_8);
+ 		Supersede_Opcode(stz3_Callback_PC,	OPCODE_st_9);
+ 		Supersede_Opcode(stz4_Callback_PC,	OPCODE_std_2);
+ 		Supersede_Opcode(ld1_Callback_PC,	OPCODE_ld_1);
+ 		Supersede_Opcode(ld2_Callback_PC,	OPCODE_ld_2);
+ 		Supersede_Opcode(ld3_Callback_PC,	OPCODE_ld_3);
+ 		Supersede_Opcode(ldy1_Callback_PC,	OPCODE_ld_4);
+ 		Supersede_Opcode(ldy2_Callback_PC,	OPCODE_ld_5);
+ 		Supersede_Opcode(ldy3_Callback_PC,	OPCODE_ld_6);
+ 		Supersede_Opcode(ldy4_Callback_PC,	OPCODE_ldd_1);
+ 		Supersede_Opcode(ldz1_Callback_PC,	OPCODE_ld_7);
+ 		Supersede_Opcode(ldz2_Callback_PC,	OPCODE_ld_8);
+ 		Supersede_Opcode(ldz3_Callback_PC,	OPCODE_ld_9);
+ 		Supersede_Opcode(ldz4_Callback_PC,	OPCODE_ldd_2);
+ 		Supersede_Opcode(icall_Callback_PC,	OPCODE_icall);
+ 		Supersede_Opcode(ijmp_Callback_PC,	OPCODE_ijmp);
+ 		Supersede_Opcode(sbrc_Callback_PC,	OPCODE_sbrc);
+ 		Supersede_Opcode(sbrs_Callback_PC,	OPCODE_sbrs);
 	}
 
 	qsort(Opcodes, Number_Opcodes, sizeof(struct Opcode), Comparison);

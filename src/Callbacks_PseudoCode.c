@@ -249,16 +249,16 @@ void PC_Operation_A_b(int MNemonic_Int) {
 	} 
 	switch (MNemonic_Int) {
 		case OPCODE_cbi:
-			snprintf(Code_Line, 255, "IO[%s] &= ~(_BV(%d));", Register_Name, Bit);
+			snprintf(Code_Line, 255, "IO[%s[%d]] = false;", Register_Name, Bit);
 			break;
 		case OPCODE_sbi:
-			snprintf(Code_Line, 255, "IO[%s] |= _BV(%d);", Register_Name, Bit);
+			snprintf(Code_Line, 255, "IO[%s[%d]] = true;", Register_Name, Bit);
 			break;
 		case OPCODE_sbis:
-			snprintf(Code_Line, 255, "skipif (IO[%s] & _BV(%d))", Register_Name, Bit);
+			snprintf(Code_Line, 255, "skipif (IO[%s[%d]])", Register_Name, Bit);
 			break;
 		case OPCODE_sbic:
-			snprintf(Code_Line, 255, "skipif (!(IO[%s] & _BV(%d)))",Register_Name, Bit);
+			snprintf(Code_Line, 255, "skipif (!IO[%s[%d]])",Register_Name, Bit);
 			break;
 		default:
 			snprintf(Code_Line, 255, "%-7s %s, %d", MNemonic[MNemonic_Int], Register_Name, Bit);
@@ -654,7 +654,106 @@ CALLBACK(lpm1_Callback_PC) {
 	snprintf(Code_Line, 255, "r0 = Flash[r30:r31];");
 }
 
-CALLBACK(st2_Callback_PC) {
-	snprintf(Code_Line, 255, "Flash[[r26:r27]++] = r%d;", Rr);
+CALLBACK(st1_Callback_PC) {
+ 	snprintf(Code_Line, 255, "Memory[r26:r27] = r%d;", Rr);
 }
 
+CALLBACK(st2_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[[r26:r27]++] = r%d;", Rr);
+}
+
+CALLBACK(st3_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[--[r26:r27]] = r%d;", Rr);
+}
+
+CALLBACK(sty1_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[r28:r29] = r%d;", Rr);
+}
+
+CALLBACK(sty2_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[[r28:r29]++] = r%d;", Rr);
+}
+
+CALLBACK(sty3_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[--[r28:r29]] = r%d;", Rr);
+}
+
+CALLBACK(sty4_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[[r28:r29]+%d] = r%d;", Rq, Rr);
+}
+
+CALLBACK(stz1_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[r30:r31] = r%d;", Rr);
+}
+
+CALLBACK(stz2_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[[r30:r31]++] = r%d;", Rr);
+}
+
+CALLBACK(stz3_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[--[r30:r31]] = r%d;", Rr);
+}
+
+CALLBACK(stz4_Callback_PC) {
+	snprintf(Code_Line, 255, "Memory[[r30:r31]+%d] = r%d;", Rq, Rr);
+}
+
+CALLBACK(ld1_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[r26:r27];", Rd);
+}
+
+CALLBACK(ld2_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[[r26:r27]++];", Rd);
+}
+
+CALLBACK(ld3_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[--[r26:r27]];", Rd);
+}
+
+CALLBACK(ldy1_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[r28:r29];", Rd);
+}
+
+CALLBACK(ldy2_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[[r28:r29]++];", Rd);
+}
+
+CALLBACK(ldy3_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[--[r28:r29]];", Rd);
+}
+
+CALLBACK(ldy4_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[[r28:r29]+%d];", Rd, Rq);
+}
+
+CALLBACK(ldz1_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[r30:r31];", Rd);
+}
+
+CALLBACK(ldz2_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[[r30:r31]++];", Rd);
+}
+
+CALLBACK(ldz3_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[--[r30:r31]];", Rd);
+}
+
+CALLBACK(ldz4_Callback_PC) {
+	snprintf(Code_Line, 255, "r%d = Memory[[r30:r31]+%d];", Rd, Rq);
+}
+
+CALLBACK(icall_Callback_PC) {
+	snprintf(Code_Line, 255, "icall [r30:r31];");
+}
+
+CALLBACK(ijmp_Callback_PC) {
+	snprintf(Code_Line, 255, "ijmp [r30:r31];");
+}
+
+CALLBACK(sbrc_Callback_PC) {
+	snprintf(Code_Line, 255, "skipif (!r%d[%d])", Rr, Rb);
+}
+
+CALLBACK(sbrs_Callback_PC) {
+	snprintf(Code_Line, 255, "skipif (r%d[%d])", Rr, Rb);
+}
