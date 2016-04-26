@@ -1,0 +1,16 @@
+Things to do...
+===============
+
+  * avrdisas can currently only handle files <= 128kB (which is solely due to
+    my laziness in writing a sophisticated prebuffer)
+  * Theoretically, a bound-overflow buffer could occour when the buffer is
+    completely at the end (128kB) and the last character indicates a 4-byte
+	opcode. Then the next 3 bytes would be tried to also be read. This bug
+	also exists solely due to my laziness.
+  * Not all illegal jumps are being caught
+  * Functions (addresses referenced by 'call') should be labeled "FunctionX:",
+    not "LabelX:" - but that would only be neat and will probably fail because
+	of my laziness
+  * I'm not sure if avrdisas works correctly in all cases. If it doesn't,
+    please drop me a note!
+

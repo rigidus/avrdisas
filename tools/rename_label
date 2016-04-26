@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+#
+
+if [ ! -f "$1" ]; then
+	echo "Parameter?"
+	exit 1
+fi
+
+loop=1
+while [ "$loop" == "1" ]; do
+	echo -n "Old name     : "
+	read old
+
+	address=`avr-objdump -d "${1}" | grep "^[0-9a-fA-F]\{8\} <${old}>:$" | awk '{print $1}'`
+	if [ "$old" == "" ]; then
+		loop="0"
+	else
+		if [ "$address" != "" ]; then
+			loop="0"
+		else
+			echo "Symbol not found."
+		fi
+	fi
+done
+
+if [ "$address" == "" ]; then
+	exit 1
+fi
+
+address=`echo "$address" | awk '{printf("0x%x\n", strtonum("0x" $1));}'`
+echo "Found address: ${address}"
+echo -n "New name     : "
+read new
+echo -n "Comment      : "
+read comment
+
+echo "${address}	L		${new}		${comment}" >> "${1}.tag"
+

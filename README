@@ -1,0 +1,54 @@
+Avrdisas
+========
+
+This is the README file of 'avrdisas', a little AVR microcontroller
+disassembler. It supports all AVR opcodes and automatically labels
+jump/call addresses (2-pass disassembly).
+
+
+
+Who made this program?
+======================
+
+I am Johannes Bauer. You can reach me at JohannesBauer@gmx.de or check
+my homepage (http://www.johannes-bauer.com) for updates.
+
+
+
+How does it work?
+=================
+
+On the command-line, type
+  # make
+and, if you want to, as root
+  # make install
+Then the program can be invoked simply by "avrdisas"
+
+
+
+How do I get it run on Windows?
+===============================
+
+Thanks to Kurt Binder there is support for Windows now. Simply add the
+"DOS_BASED_OS" define to the compiling process, e.g. by issuing a
+  # CFLAGS="-DDOS_BASED_OS" make
+which should take care of all neccessary adjustments for Windows.
+
+
+
+How are tagfiles being used?
+============================
+
+Tagfiles are a powerful utility to make your debugging life easier. Have 
+a look at the tools/ package tag file (one which contains only labels) and
+also look at the test/ packages for an example of a more advanced tag file.
+
+
+
+What license is it uner?
+========================
+
+GPL-2. GNU General Public License Version 2. Also see the LICENSE file for
+details.
+
+

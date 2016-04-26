@@ -1,0 +1,79 @@
+/*
+	avrdisas - A disassembler for AVR microcontroller units
+	Copyright (C) 2004 Johannes Bauer
+	
+	This file is part of avrdisas.
+
+    avrdisas is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    avrdisas is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with avrdisas; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+	Johannes Bauer
+	Mussinanstr. 140
+	92318 Neumarkt/Opf.
+	JohannesBauer@gmx.de
+*/
+
+#!/bin/sh
+#
+#
+
+pfad="/usr/avr/include/avr/"
+temppfad="tmp/"
+debug="0"
+
+if [ ! -d "$temppfad" ]; then
+	echo "Temporary directory ${temppfad} doesn't exist!"
+	exit
+fi
+
+process_io_h_file() {
+	i="$1"
+	if [ -f "$i" ]; then
+		type="${i:$((${#pfad}+2))}"
+		type="${type:0:$((${#type}-2))}"
+		if [ "$type" == "" ] && [ "$2" == "1" ]; then
+			type="ZZZZ"
+		else
+			if [ "$type" == "" ]; then
+				return
+			fi
+		fi
+		cat "$i" | grep "SFR_IO8" \
+			| sed 's/\/\*.*\*\///g;' \
+			| sed 's/^#.*define //g;' \
+			| sed 's/_SFR_IO8(\(.*\))/\1/g;' \
+			| sed 's/^\([[:alnum:]]*\).*0x\([0-9a-fA-F]*\)/\2|\1/g;' \
+			| sort | uniq -i \
+			> "${temppfad}${type}"
+	fi
+}
+
+process_io_h_file "${pfad}io.h" 1
+for i in ${pfad}io*.h; do
+	process_io_h_file "$i" 0
+done
+
+echo "static struct IO_Register IO_Registers[] = {"
+for i in ${temppfad}*; do
+	type="${i:$((${#temppfad}))}"
+	if [ "$type" == "ZZZZ" ]; then
+		type="Global"
+	fi
+	cat "$i" | awk -F '|' '{
+		printf("\t{\"'$type'\", 0x%s, \"%s\"},\n", $1, $2);
+	}'
+done
+echo "};"
+echo
+

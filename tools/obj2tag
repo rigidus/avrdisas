@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+#
+
+if [ "$1" == "" ]; then
+	echo "Filename?"
+	exit 1
+fi
+
+echo "# Automatically generated tagfile from ${1}"
+avr-objdump -d "$1" | grep '<.*>:' | awk '{
+	ADDR = strtonum("0x" $1);
+	printf("0x%x	L		%s\n", ADDR, substr($2, 2, length($2) - 3));
+}'
+echo
+avr-nm "$1" | grep '^0080' | sort | grep -Ev '_(_bss_start|_data_end|_data_start|_bss_end|edata)' | awk '
+{
+	ADDR = strtonum("0x" $1) - strtonum("0x800000");
+	if (LAST != "") {
+		STARTADDR = LAST;
+		ENDADDR = ADDR - 1;
+		SYMBOL = LASTSYM;
+		SIZE = ENDADDR - STARTADDR + 1;
+		if (SIZE == 1) {
+			printf("0x%x	M	B	1	%s\n", STARTADDR, SYMBOL);
+		} else if (SIZE == 2) {
+			printf("0x%x	M	W	1	%s\n", STARTADDR, SYMBOL);
+		} else {
+			printf("0x%x	M	B	%d	%s\n", STARTADDR, SIZE, SYMBOL);
+		}
+
+	}
+	LAST = ADDR;
+	LASTSYM = $3;
+}'

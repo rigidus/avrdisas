@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+#
+
+tempfile="tempfile_licenseall.tmp"
+
+skip="0"
+already="0"
+tagged="0"
+for i in src/* includes/*; do
+	if [ ! -f "$i" ]; then
+		skip="$(($skip+1))"
+		continue
+	fi
+	echo -n "${i}..."
+	grep "GNU General Public License as published" "$i" > /dev/null 2>&1
+	result="$?"
+	if [ "$result" != "0" ]; then
+		tagged="$(($tagged+1))"
+		echo "License added!"
+		cat LICENSE-Header "$i" > "$tempfile"
+		mv "$tempfile" "$i"
+	else
+		already="$(($already+1))"
+		echo "Already tagged."
+	fi
+done
+echo
+echo "Skipped       : $skip"
+echo "Tagged        : $tagged"
+echo "Already tagged: $already"
