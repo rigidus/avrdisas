@@ -152,6 +152,18 @@ char *Get_Label_Name(int Destination, char **LabelComment) {
 	return Buffer;
 }
 
+char *Get_Containing_Label(int Address){
+    int i;
+    for(i = 0; i < JumpCall_Count; i++){
+        // resolve containing label
+		if ((JumpCalls[i].To) <= Address && JumpCalls[i+1].To >= Address) {
+            char * comment = NULL;
+            return Get_Label_Name(JumpCalls[i].To, &comment);
+		}
+    }
+    return NULL;
+}
+
 /* Show all references which refer to "Position" as destination */
 void Print_JumpCalls(int Position) {
 	int i;
@@ -163,7 +175,7 @@ void Print_JumpCalls(int Position) {
 				printf("\n");
 				Match = 1;
 			}
-            const char* caller = Tagfile_Resolve_Code_Address(JumpCalls[i].From);
+            const char* caller = Get_Containing_Label(JumpCalls[i].From);
             printf("; Referenced from offset 0x%02x <%s> by %s\n", JumpCalls[i].From, caller, MNemonic[JumpCalls[i].Type]);
 		}
 	}
