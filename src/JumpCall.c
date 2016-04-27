@@ -71,8 +71,16 @@ int JC_Comparison(const void *Element1, const void *Element2) {
 	struct JumpCall *JC1, *JC2;
 	JC1 = (struct JumpCall*)Element1;
 	JC2 = (struct JumpCall*)Element2;
-	if ((JC1->To) > (JC2->To)) return 1;
-		else if ((JC1->To) == (JC2->To)) return 0;
+	if ((JC1->To) > (JC2->To)) {
+		return 1;
+	} else if ((JC1->To) == (JC2->To)) {
+		if ((JC1->From) > (JC2->From)) {
+			return 1;
+		} else if ((JC1->From) == (JC2->From)) {
+			return 0;
+		}
+		return -1;
+	}
 	return -1;
 }
 
