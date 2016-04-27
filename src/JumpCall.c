@@ -163,7 +163,12 @@ void Print_JumpCalls(int Position) {
 				printf("\n");
 				Match = 1;
 			}
-			printf("; Referenced from offset 0x%02x by %s\n", JumpCalls[i].From, MNemonic[JumpCalls[i].Type]);
+            if(JumpCalls[i].FunctionCall){
+                char* caller = Tagfile_Resolve_Code_Address(JumpCalls[i].From);
+                printf("; Referenced from offset 0x%02x <%s> by %s\n", JumpCalls[i].From, caller, MNemonic[JumpCalls[i].Type]);
+            } else {
+                printf("; Referenced from offset 0x%02x by %s\n", JumpCalls[i].From, MNemonic[JumpCalls[i].Type]);
+            }
 		}
 	}
 	if (Match == 1) {
