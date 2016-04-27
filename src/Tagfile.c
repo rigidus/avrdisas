@@ -346,6 +346,27 @@ const char* Tagfile_Resolve_Mem_Address(int Address) {
 	return NULL;
 }
 
+const char* Tagfile_Resolve_Code_Address(int Address) {
+	static char Buffer[64];
+	int i;
+	for (i = 0; i < CodeLabelCount; i++) {
+		int Start, End;
+		if (CodeLabels[i].Address > Address) return NULL;
+
+		Start = CodeLabels[i].Address;
+        if(i < CodeLabelCount-1){
+            End = CodeLabels[i+1].Address;
+        } else {
+            End = -1;
+        }
+		if ((Address >= Start) && (Address <= End)) {
+            strncpy(Buffer, CodeLabels[i].Text, sizeof(Buffer));
+			return Buffer;
+		}
+	}
+	return NULL;
+}
+
 static int Tagfile_Process_Byte(char *Bitstream, int Position, int ArgumentNo, const char *Label) {
 	printf(".byte 0x%02x\n", ((unsigned char*)Bitstream)[Position]);
 	return 1;
