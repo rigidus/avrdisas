@@ -156,13 +156,13 @@ static void Tagfile_Readline(char *Line, int LineNo) {
 	if (Line[0] == '#') return;
 	if (strlen(Line) <= 1) return;
 	
-	Token = strtok(Line, "\t\n");
+	Token = strtok(Line, "\t\r\n");
 	if (LineError(Token, "nonempty line", LineNo)) return;
 
 	/* Token now holds an address, determine if hex or dec */
 	Address = ahtoi(Token);
 
-	Token = strtok(NULL, "\t\n");
+	Token = strtok(NULL, "\t\r\n");
 	if (LineError(Token, "no second argument", LineNo)) return;
 	if (strlen(Token) != 1) {
 		LineError(NULL, "second argument too long", LineNo);
@@ -170,12 +170,12 @@ static void Tagfile_Readline(char *Line, int LineNo) {
 	}
 
 	Type = Token[0];
-	Token = strtok(NULL, "\t\n");
+	Token = strtok(NULL, "\t\r\n");
 	if (LineError(Token, "no third argument", LineNo)) return;
 
 	if (Type == 'L') {
 		char *LabelName = Token;
-		Token = strtok(NULL, "\t\n");
+		Token = strtok(NULL, "\t\r\n");
 		Add_LabelTag(Address, LabelName, Token);
 		return;
 	}
@@ -202,14 +202,14 @@ static void Tagfile_Readline(char *Line, int LineNo) {
 		return;
 	}
 
-	Token = strtok(NULL, "\t\n");
+	Token = strtok(NULL, "\t\r\n");
 	Count = ahtoi(Token);
 	if (Count < 1) {
 		LineError(NULL, "invalid count given", LineNo);
 		return;
 	}
 
-	Token = strtok(NULL, "\t\n");
+	Token = strtok(NULL, "\t\r\n");
 	if (Type == 'P') {
 		Add_PGM_Tag(Address, Subtype, Count, Token);
 	} else if (Type == 'M') {
