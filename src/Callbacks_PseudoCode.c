@@ -249,16 +249,16 @@ void PC_Operation_A_b(int MNemonic_Int) {
 	} 
 	switch (MNemonic_Int) {
 		case OPCODE_cbi:
-			snprintf(Code_Line, 255, "IO[%s[%d]] = false;", Register_Name, Bit);
+			snprintf(Code_Line, 255, "IO_BIT[%s,%d] = false;", Register_Name, Bit);
 			break;
 		case OPCODE_sbi:
-			snprintf(Code_Line, 255, "IO[%s[%d]] = true;", Register_Name, Bit);
+			snprintf(Code_Line, 255, "IO_BIT[%s,%d] = true;", Register_Name, Bit);
 			break;
 		case OPCODE_sbis:
-			snprintf(Code_Line, 255, "skipif (IO[%s[%d]])", Register_Name, Bit);
+			snprintf(Code_Line, 255, "skipif (IO_BIT[%s,%d])", Register_Name, Bit);
 			break;
 		case OPCODE_sbic:
-			snprintf(Code_Line, 255, "skipif (!IO[%s[%d]])",Register_Name, Bit);
+			snprintf(Code_Line, 255, "skipif (!IO_BIT[%s,%d])",Register_Name, Bit);
 			break;
 		default:
 			snprintf(Code_Line, 255, "%-7s %s, %d", MNemonic[MNemonic_Int], Register_Name, Bit);
@@ -751,9 +751,9 @@ CALLBACK(ijmp_Callback_PC) {
 }
 
 CALLBACK(sbrc_Callback_PC) {
-	snprintf(Code_Line, 255, "skipif (!r%d[%d])", Rr, Rb);
+	snprintf(Code_Line, 255, "skipif (!bit(r%d,%d))", Rr, Rb);
 }
 
 CALLBACK(sbrs_Callback_PC) {
-	snprintf(Code_Line, 255, "skipif (r%d[%d])", Rr, Rb);
+	snprintf(Code_Line, 255, "skipif (bit(r%d,%d))", Rr, Rb);
 }

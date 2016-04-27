@@ -71,8 +71,16 @@ int JC_Comparison(const void *Element1, const void *Element2) {
 	struct JumpCall *JC1, *JC2;
 	JC1 = (struct JumpCall*)Element1;
 	JC2 = (struct JumpCall*)Element2;
-	if ((JC1->To) > (JC2->To)) return 1;
-		else if ((JC1->To) == (JC2->To)) return 0;
+	if ((JC1->To) > (JC2->To)) {
+		return 1;
+	} else if ((JC1->To) == (JC2->To)) {
+		if ((JC1->From) > (JC2->From)) {
+			return 1;
+		} else if ((JC1->From) == (JC2->From)) {
+			return 0;
+		}
+		return -1;
+	}
 	return -1;
 }
 
@@ -152,6 +160,66 @@ char *Get_Label_Name(int Destination, char **LabelComment) {
 	return Buffer;
 }
 
+int Resolve_Jump(int Address){
+    int i;
+    for(i = 0; i < JumpCall_Count; i++){
+        // resolve containing label
+		if ((JumpCalls[i].To) <= Address && JumpCalls[i+1].To >= Address) {
+            return i;
+		}
+    }
+    return -1;
+}
+
+char *Get_Containing_Label(int Address){
+    char * comment = NULL;
+    return Get_Label_Name(Address, &comment);
+}
+
+int Get_Containing_Function(int Address, int depth){
+    int i;
+    if(depth > 100){
+        return -1;
+    }
+    // printf("Seeing caller address %04x\n", Address);
+    for(i = 0; i < JumpCall_Count; i++){
+        // resolve containing label
+        if ((JumpCalls[i].To) <= Address && JumpCalls[i+1].To >= Address) {
+            int caller = i;
+            int caller_address = JumpCalls[caller].To;
+            // printf("Seeing caller label address %04x\n", Address);
+            int TagIndex = Tagfile_FindLabelAddress(caller_address);
+            if (TagIndex != -1) {
+                // printf("Found a tag named %s in index %04x\n", Tagfile_GetLabel(TagIndex), caller);
+                return caller;
+            }
+            TagIndex = Tagfile_FindLabelAddress(Address);
+            if (TagIndex != -1) {
+                // printf("Found a tag named %s in index %04x\n", Tagfile_GetLabel(TagIndex), caller);
+                return caller;
+            }
+
+            if(JumpCalls[caller].FunctionCall){
+                // printf("Caller %04x is a function\n", caller_address);
+                return caller;
+            } else {
+                if(caller_address != Address){
+                    // printf("Tried to resolve %04x to %04x but failed, trying at %04x\n", Address, caller_address, caller_address);
+                    int result = Get_Containing_Function(caller_address, depth+1);
+                    // printf("Ended up at %04x\n", result);
+                    if(result != -1){
+                        return result;
+                    }
+                } else {
+                    // printf("Encountered loop at %04x\n", caller_address);
+                    return -1;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
 /* Show all references which refer to "Position" as destination */
 void Print_JumpCalls(int Position) {
 	int i;
@@ -163,7 +231,11 @@ void Print_JumpCalls(int Position) {
 				printf("\n");
 				Match = 1;
 			}
-            const char* caller = Tagfile_Resolve_Code_Address(JumpCalls[i].From);
+            int call_start = JumpCalls[Get_Containing_Function(JumpCalls[i].From, 0)].To;
+            if(call_start < 0){
+                call_start = JumpCalls[Resolve_Jump(JumpCalls[i].To)].To;
+            }
+            const char* caller = Get_Containing_Label(call_start);
             printf("; Referenced from offset 0x%02x <%s> by %s\n", JumpCalls[i].From, caller, MNemonic[JumpCalls[i].Type]);
 		}
 	}
