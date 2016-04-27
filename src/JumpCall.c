@@ -176,18 +176,6 @@ char *Get_Containing_Label(int Address){
     return Get_Label_Name(Address, &comment);
 }
 
-/*char *Get_Containing_Label(int Address){*/
-/*int i;*/
-/*for(i = 0; i < JumpCall_Count; i++){*/
-/*// resolve containing label*/
-/*if ((JumpCalls[i].To) <= Address && JumpCalls[i+1].To >= Address) {*/
-/*char * comment = NULL;*/
-/*return Get_Label_Name(JumpCalls[i].To, &comment);*/
-/*}*/
-/*}*/
-/*return NULL;*/
-/*}*/
-
 int Get_Containing_Function(int Address, int depth){
     int i;
     if(depth > 100){
