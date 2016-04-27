@@ -188,9 +188,14 @@ int Get_Containing_Function(int Address, int depth){
             int caller = i;
             int caller_address = JumpCalls[caller].To;
             // printf("Seeing caller label address %04x\n", Address);
-            int TagIndex = Tagfile_FindLabelAddress(Address);
+            int TagIndex = Tagfile_FindLabelAddress(caller_address);
             if (TagIndex != -1) {
-                // printf("Found a tag named %s\n", Tagfile_GetLabel(TagIndex));
+                // printf("Found a tag named %s in index %04x\n", Tagfile_GetLabel(TagIndex), caller);
+                return caller;
+            }
+            TagIndex = Tagfile_FindLabelAddress(Address);
+            if (TagIndex != -1) {
+                // printf("Found a tag named %s in index %04x\n", Tagfile_GetLabel(TagIndex), caller);
                 return caller;
             }
 
