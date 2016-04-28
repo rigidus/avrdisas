@@ -182,10 +182,16 @@ int Get_Containing_Function(int Address, int depth){
         return -1;
     }
     int caller_address = Address;
+    /*printf("Seeing caller address %04x\n", Address);*/
+    /*for(i = JumpCall_Count; i >= 0; i--){*/
+        /*if (JumpCalls[i].To <= caller_address) {*/
     for(i = 0; i < JumpCall_Count; i++){
         if ((JumpCalls[i].To) <= caller_address && JumpCalls[i+1].To >= caller_address) {
 
             int caller = i;
+            /*printf("Seeing caller label address %04x\n", caller_address);*/
+            /*printf("Resolved as %04x\n", JumpCalls[caller].To);*/
+            /*int next_caller_address = JumpCalls[Resolve_Jump(JumpCalls[caller].To)].To;*/
             // caller address is directly tagged
             int TagIndex = Tagfile_FindLabelAddress(caller_address);
             if (TagIndex != -1) {
@@ -197,16 +203,22 @@ int Get_Containing_Function(int Address, int depth){
             // caller address is itself a called function
             // caller is directly called
             if(JumpCalls[caller].FunctionCall){
-                next_caller_address = JumpCalls[Resolve_Jump(JumpCalls[caller].To)].From;
+                /*printf("Found an indirect function call to %04x from %04x\n", JumpCalls[caller].To, JumpCalls[caller].From);*/
+                return JumpCalls[caller].To;
             }
 
 
             if(next_caller_address == caller_address){
+                /*printf("Detected loop\n");*/
+            /**//*return Get_Containing_Function(next_caller_address, depth+1);*/
                 next_caller_address = JumpCalls[caller-1].From;
+            /*return next_caller_address;*/
             }
             int result = -1;
             if(next_caller_address != caller_address){
+                /*printf("Tried to resolve %04x to %04x but failed, trying at %04x\n", caller_address, next_caller_address, next_caller_address);*/
                 result = Get_Containing_Function(next_caller_address, depth+1);
+                /*printf("Ended up at %04x\n", result);*/
             }
             if(result == -1){
                 result = JumpCalls[Resolve_Jump(result)].From;
@@ -219,6 +231,7 @@ int Get_Containing_Function(int Address, int depth){
                     return result;
                 }
             }
+            /*printf("Somethings fucky\n");*/
             return -1;
         }
     }
@@ -239,9 +252,11 @@ void Print_JumpCalls(int Position) {
             // get the index of the JumpCall that is the top-level entrypoint for this target jump
             int containing_function = Get_Containing_Function(JumpCalls[i].From, 0);
             if(containing_function > 0){
+                /*printf("Located jump to %04x in %04x\n", JumpCalls[i].To, containing_function);*/
             }
             int call_start = containing_function;
             if(call_start < 0){
+                /*call_start = JumpCalls[Resolve_Jump(JumpCalls[i].To)].To;*/
                 call_start = JumpCalls[i].From;
             }
             const char* caller = Get_Containing_Label(call_start);
