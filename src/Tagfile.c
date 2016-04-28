@@ -153,8 +153,9 @@ static void Tagfile_Readline(char *Line, int LineNo) {
 	char Type, Subtype;
 	int Count;
 	
+	if (strlen(Line) <= 1) return;	
 	if (Line[0] == '#') return;
-	if (strlen(Line) <= 1) return;
+	if (strlen(Line) == 2 && Line[0] == '\r' && Line[1] == '\n') return;
 	
 	Token = strtok(Line, "\t\r\n");
 	if (LineError(Token, "nonempty line", LineNo)) return;
