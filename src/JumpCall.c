@@ -188,7 +188,6 @@ int Get_Containing_Function(int Address, int depth){
             int caller = i;
 
             int TagIndex;
-            // caller address is itself a called function
             // caller is directly called
             if(JumpCalls[caller].FunctionCall){
                 TagIndex = Tagfile_FindLabelAddress(caller_address);
@@ -198,6 +197,11 @@ int Get_Containing_Function(int Address, int depth){
                 } else {
                     caller_address = JumpCalls[Resolve_Jump(JumpCalls[caller].From)].To;
                 }
+            }
+
+            TagIndex = Tagfile_FindLabelAddress(caller_address);
+            if (TagIndex != -1) {
+                return caller_address;
             }
 
             int next_caller_address = JumpCalls[caller].To;
@@ -257,6 +261,10 @@ void Print_JumpCalls(int Position) {
             printf("; Referenced from offset 0x%02x <%s> by %s\n", JumpCalls[i].From, caller, MNemonic[JumpCalls[i].Type]);
 		}
 	}
+    int TagIndex = Tagfile_FindLabelAddress(Position);
+    if(TagIndex != -1){
+        Match = 1;
+    }
 	if (Match == 1) {
 		char *LabelName;
 		char *LabelComment = NULL;
