@@ -22,7 +22,7 @@ ETCDIR = /etc/
 #TESTOPTIONS = -a1 -p0 -o1 -l1 -ttools/AsmExample.tag -mm16 tools/AsmExample.bin
 TESTOPTIONS = -a1 -q1 -l1 -mtn2313 tools/AVRLirc.bin -ttools/AVRLirc.tag
 
-OBJS = $(BINDIR)Callbacks_Assembly.o $(BINDIR)Callbacks_PseudoCode.o $(BINDIR)Options.o $(BINDIR)JumpCall.o $(BINDIR)IORegisters.o $(BINDIR)MNemonics.o $(BINDIR)Tagfile.o $(BINDIR)Tools.o
+OBJS = $(BINDIR)Callbacks_Assembly.o $(BINDIR)Callbacks_PseudoCode.o $(BINDIR)Options.o $(BINDIR)JumpCall.o $(BINDIR)IORegisters.o $(BINDIR)MNemonics.o $(BINDIR)Tagfile.o $(BINDIR)Tools.o $(BINDIR)Opcodes.o
 
 all: $(BINDIR)avrdisas
 
@@ -58,6 +58,9 @@ $(BINDIR)avrdisas: $(SRCDIR)avrdisas.c $(OBJS)
 
 $(BINDIR)JumpCall.o: $(INCDIR)JumpCall.h $(SRCDIR)JumpCall.c
 	$(CC) $(CFLAGS) -c -o $(BINDIR)JumpCall.o $(SRCDIR)JumpCall.c
+
+$(BINDIR)Opcodes.o: $(INCDIR)Opcodes.h $(SRCDIR)Opcodes.c
+	$(CC) $(CFLAGS) -c -o $(BINDIR)Opcodes.o $(SRCDIR)Opcodes.c
 
 $(BINDIR)Callbacks_Assembly.o: $(INCDIR)Callbacks_Assembly.h $(SRCDIR)Callbacks_Assembly.c
 	$(CC) $(CFLAGS) -c -o $(BINDIR)Callbacks_Assembly.o $(SRCDIR)Callbacks_Assembly.c

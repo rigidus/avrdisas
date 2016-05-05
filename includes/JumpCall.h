@@ -28,7 +28,7 @@ void Display_JumpCalls();
 void Register_JumpCall(int From, int To, int Type, unsigned char FunctionCall);
 int JC_Comparison(const void *Element1, const void *Element2);
 void Sort_JumpCalls();
-void Enumerate_Labels();
+void Enumerate_Labels(char* Bitstream);
 char *Get_Label_Name(int Destination, char **LabelComment);
 void Print_JumpCalls(int Position);
 int FixTargetAddress(int Address);

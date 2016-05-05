@@ -48,6 +48,7 @@ struct JumpCall {
 	int From;
 	int To;
 	int Type;
+    int ContainingFunction;
 	unsigned int LabelNumber;
 	unsigned char FunctionCall;
 };
