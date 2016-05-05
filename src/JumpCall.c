@@ -282,7 +282,6 @@ void Print_JumpCalls(int Position) {
                 printf("\n");
 				Match = 1;
 			}
-            printf("Container %04x\n", JumpCalls[i].ContainingFunction);
             const char* caller;
             if(JumpCalls[i].ContainingFunction >= 0){
                 caller = Get_Containing_Label(JumpCalls[i].ContainingFunction);
