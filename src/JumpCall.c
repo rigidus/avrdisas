@@ -246,8 +246,11 @@ char *Get_Label_Name(int Destination, char **LabelComment) {
 	TagIndex = Tagfile_FindLabelAddress(Destination);
 	if (TagIndex != -1) {
 		TagLabel = Tagfile_GetLabel(TagIndex);
-		snprintf(Buffer, sizeof(Buffer), "%s", TagLabel);
 		if (LabelComment != NULL) *LabelComment = Tagfile_GetLabelComment(TagIndex);
+        if(!TagLabel){
+            return NULL;
+        }
+        snprintf(Buffer, sizeof(Buffer), "%s", TagLabel);
 		return Buffer;
 	}
 	
@@ -256,7 +259,7 @@ char *Get_Label_Name(int Destination, char **LabelComment) {
 			if (JumpCalls[i].FunctionCall) {
  				snprintf(Buffer, sizeof(Buffer), "Function_0x%x", JumpCalls[i].To);
 			} else {
-        snprintf(Buffer, sizeof(Buffer), "Label_0x%x", JumpCalls[i].To);
+                snprintf(Buffer, sizeof(Buffer), "Label_0x%x", JumpCalls[i].To);
 			}
 			return Buffer;
 		}
@@ -299,11 +302,17 @@ void Print_JumpCalls(int Position) {
 		char *LabelName;
 		char *LabelComment = NULL;
 		LabelName = Get_Label_Name(Position, &LabelComment);
-		if (LabelComment == NULL) {
-			 printf("%s:\n", LabelName);
-		} else {
-			 printf("%s:     ; %s\n", LabelName, LabelComment);
-		}
+        if(LabelName){
+            printf("%s:", LabelName);
+            if(LabelComment) {
+                 printf("     ; %s", LabelComment);
+            }
+        } else {
+            if(LabelComment) {
+                 printf("; %s", LabelComment);
+            }
+        }
+        printf("\n");
 	}
 }
 

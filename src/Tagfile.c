@@ -117,6 +117,21 @@ static void Add_LabelTag(int Address, const char *LabelText, const char *LabelCo
 	}
 }
 
+static void Add_InlineTag(int Address, const char *LabelComment) {
+	CodeLabelCount++;
+	
+	CodeLabels = (struct CodeLabel*)realloc(CodeLabels, sizeof(struct CodeLabel) * CodeLabelCount);
+	CodeLabels[CodeLabelCount - 1].Text = 0;
+	CodeLabels[CodeLabelCount - 1].Address = Address;
+	
+	if (LabelComment != NULL) {
+		CodeLabels[CodeLabelCount - 1].Comment = (char*)malloc(strlen(LabelComment) + 1);
+		strcpy(CodeLabels[CodeLabelCount - 1].Comment, LabelComment);
+	} else {
+		CodeLabels[CodeLabelCount - 1].Comment = NULL;
+	}
+}
+
 static void Add_PGM_Tag(int Address, char Type, unsigned int Count, const char *Comment) {
 	PGMLabelCount++;
 	
@@ -178,6 +193,11 @@ static void Tagfile_Readline(char *Line, int LineNo) {
 		char *LabelName = Token;
 		Token = strtok(NULL, "\t\r\n");
 		Add_LabelTag(Address, LabelName, Token);
+		return;
+	}
+
+	if (Type == 'T') {
+		Add_InlineTag(Address, Token);
 		return;
 	}
 	
