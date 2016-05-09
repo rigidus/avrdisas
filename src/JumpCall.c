@@ -303,9 +303,13 @@ void Print_JumpCalls(int Position) {
         LabelName = Get_Label_Name(Position, &LabelComment);
         if(Tagfile_GetLabel(TagIndex)){
             printf("%s:", LabelName);
-        }
-        if(LabelComment) {
-             printf("; %s", LabelComment);
+            if(LabelComment) {
+                 printf("     ; %s", LabelComment);
+            }
+        } else {
+            if(LabelComment) {
+                 printf("; %s", LabelComment);
+            }
         }
         printf("\n");
 	}
