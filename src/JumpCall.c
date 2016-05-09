@@ -146,7 +146,7 @@ int Recurse_Entrypoint(char * Bitstream, int * previous_stack, int depth){
         }
 
         TagIndex = Tagfile_FindLabelAddress(Address);
-        if(TagIndex != -1){
+        if(TagIndex != -1 && Tagfile_GetLabel(TagIndex)){
             /*printf("Found function %s\n", Tagfile_GetLabel(TagIndex));*/
             retval = Address;
             goto out;
@@ -247,10 +247,9 @@ char *Get_Label_Name(int Destination, char **LabelComment) {
 	if (TagIndex != -1) {
 		TagLabel = Tagfile_GetLabel(TagIndex);
 		if (LabelComment != NULL) *LabelComment = Tagfile_GetLabelComment(TagIndex);
-        if(!TagLabel){
-            return NULL;
+        if(TagLabel){
+            snprintf(Buffer, sizeof(Buffer), "%s", TagLabel);
         }
-        snprintf(Buffer, sizeof(Buffer), "%s", TagLabel);
 		return Buffer;
 	}
 	
@@ -299,18 +298,14 @@ void Print_JumpCalls(int Position) {
         Match = 1;
     }
 	if (Match == 1) {
-		char *LabelName;
+		char *LabelName = NULL;
 		char *LabelComment = NULL;
-		LabelName = Get_Label_Name(Position, &LabelComment);
-        if(LabelName){
+        LabelName = Get_Label_Name(Position, &LabelComment);
+        if(Tagfile_GetLabel(TagIndex)){
             printf("%s:", LabelName);
-            if(LabelComment) {
-                 printf("     ; %s", LabelComment);
-            }
-        } else {
-            if(LabelComment) {
-                 printf("; %s", LabelComment);
-            }
+        }
+        if(LabelComment) {
+             printf("; %s", LabelComment);
         }
         printf("\n");
 	}
