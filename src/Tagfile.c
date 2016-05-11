@@ -388,88 +388,105 @@ const char* Tagfile_Resolve_Code_Address(int Address) {
 	return NULL;
 }
 
-static int Tagfile_Process_Byte(char *Bitstream, int Position, int ArgumentNo, const char *Label) {
-	printf(".byte 0x%02x\n", ((unsigned char*)Bitstream)[Position]);
+static int Tagfile_Process_Byte(char *Bitstream, int Position, int ArgumentNo, const char *Label, int quiet) {
+	if(!quiet) printf(".byte 0x%02x\n", ((unsigned char*)Bitstream)[Position]);
 	return 1;
 }
 
-static int Tagfile_Process_Word(char *Bitstream, int Position, int ArgumentNo, const char *Label) {
-	printf(".word 0x%02x%02x\n", ((unsigned char*)Bitstream)[Position + 1], ((unsigned char*)Bitstream)[Position]);
+static int Tagfile_Process_Word(char *Bitstream, int Position, int ArgumentNo, const char *Label, int quiet) {
+	if(!quiet) printf(".word 0x%02x%02x\n", ((unsigned char*)Bitstream)[Position + 1], ((unsigned char*)Bitstream)[Position]);
 	return 2;
 }
 
-static int Tagfile_Process_String(char *Bitstream, int Position, int ArgumentNo, const char *Label) {
+static int Tagfile_Process_String(char *Bitstream, int Position, int ArgumentNo, const char *Label, int quiet) {
 	int i;
 	unsigned char c;
 	unsigned int InString = 0;
 
-	printf("String_0x%s_%d:    ; Address 0x%x (%d)\n", Label, ArgumentNo, Position, Position);
+	if(!quiet) printf("String_0x%s_%d:    ; Address 0x%x (%d)\n", Label, ArgumentNo, Position, Position);
 	i = 0;
 	while ((c = ((unsigned char*)Bitstream)[Position + i])) {
 		if ((c >= 32) && (c <= 127)) {
-			if (!InString) printf(".ascii \"");
-			printf("%c", c);
+            if(!quiet){
+                if (!InString) printf(".ascii \"");
+                printf("%c", c);
+            }
 			InString = 1;
 		} else {
-			if (InString) printf("\"\n");
-			printf(".byte 0x%02x\n", c);
+            if(!quiet){
+                if (InString) printf("\"\n");
+                printf(".byte 0x%02x\n", c);
+            }
 			InString = 0;
 		}
 		i++;
 	}
-	if (InString) printf("\\0\"\n");
-		else printf(".byte 0x00\n");
-	
-	printf("\n");
+    if(!quiet){
+        if (InString) printf("\\0\"\n");
+            else printf(".byte 0x00\n");
+        printf("\n");
+    }
 	return i + 1;
 }
 
-static int Tagfile_Process_String8(char *Bitstream, int Position, int ArgumentNo, const char *Label) {
+static int Tagfile_Process_String8(char *Bitstream, int Position, int ArgumentNo, const char *Label, int quiet) {
 	int i;
 	unsigned char c;
 	unsigned int InString = 0;
 
-	printf("String_0x%s_%d:    ; Address 0x%x (%d)\n", Label, ArgumentNo, Position, Position);
+	if(!quiet) printf("String_0x%s_%d:    ; Address 0x%x (%d)\n", Label, ArgumentNo, Position, Position);
 	i = 0;
 	while (i<8) {
 		c = ((unsigned char*)Bitstream)[Position + i];
 		if ((c >= 32) && (c <= 127)) {
-			if (!InString) printf(".ascii \"");
-			printf("%c", c);
+            if(!quiet){
+                if (!InString) printf(".ascii \"");
+                printf("%c", c);
+            }
 			InString = 1;
 		} else {
-			if (InString) printf("\"\n");
-			printf(".byte 0x%02x\n", c);
+            if(!quiet){
+                if (InString) printf("\"\n");
+                printf(".byte 0x%02x\n", c);
+            }
 			InString = 0;
 		}
 		i++;
 	}
-	printf("\"\n");
+    if(!quiet){
+        printf("\"\n");
+    }
 	return 8;
 }
 
-static int Tagfile_Process_String16(char *Bitstream, int Position, int ArgumentNo, const char *Label) {
+static int Tagfile_Process_String16(char *Bitstream, int Position, int ArgumentNo, const char *Label, int quiet) {
 	int i;
 	unsigned char c;
 	unsigned int InString = 0;
 
-	printf("String_0x%s_%d:    ; Address 0x%x (%d)\n", Label, ArgumentNo, Position, Position);
+	if(!quiet) printf("String_0x%s_%d:    ; Address 0x%x (%d)\n", Label, ArgumentNo, Position, Position);
 	i = 0;
 	while (i<16) {
 		c = ((unsigned char*)Bitstream)[Position + i];
 		if ((c >= 32) && (c <= 127)) {
-			if (!InString) printf(".ascii \"");
-			printf("%c", c);
+            if(!quiet){
+                if (!InString) printf(".ascii \"");
+                printf("%c", c);
+            }
 			InString = 1;
 		} else {
-			if (InString) printf("\"\n");
-			printf(".byte 0x%02x\n", c);
+            if(!quiet){
+                if (InString) printf("\"\n");
+                printf(".byte 0x%02x\n", c);
+            }
 			InString = 0;
 		}
 		i++;
 	}
 	
-	printf("\"\n");
+    if(!quiet){
+        printf("\"\n");
+    }
 	return 16;
 }
 
@@ -485,11 +502,11 @@ static void Sanitize_String(char *String) {
 	}
 }
 
-int Tagfile_Process_Data(char *Bitstream, int Position) {
+int Tagfile_Process_Data(char *Bitstream, int Position, int quiet) {
 	int i;
 	int BytesAdvanced;
 	int Index;
-	int (*ProcessingFunction)(char*, int, int, const char*) = NULL;
+	int (*ProcessingFunction)(char*, int, int, const char*, int) = NULL;
 	char Buffer[32];
 	Index = Tagfile_FindPGMAddress(Position);
 	if (Index == -1) return 0;
@@ -503,22 +520,24 @@ int Tagfile_Process_Data(char *Bitstream, int Position) {
  		case TYPE_STRING16: ProcessingFunction = Tagfile_Process_String16; break;
 	}
 
-	printf("; Inline PGM data: %d ", PGMLabels[Index].Count);
-	switch (PGMLabels[Index].Type) {
-		case TYPE_BYTE: printf("byte"); break;
-		case TYPE_WORD: printf("word"); break;
-		case TYPE_ASTRING: printf("autoaligned string"); break;
-		case TYPE_STRING: printf("string"); break;
- 		case TYPE_STRING8: printf("string"); break;
- 		case TYPE_STRING16: printf("string"); break;
-	}
-	if (PGMLabels[Index].Count != 1) printf("s");
-	printf(" starting at 0x%x", Position);
-	
-	if (PGMLabels[Index].Comment != NULL) {
-		printf(" (%s)", PGMLabels[Index].Comment);
-	}
-	printf("\n");
+    if(!quiet){
+        printf("; Inline PGM data: %d ", PGMLabels[Index].Count);
+        switch (PGMLabels[Index].Type) {
+            case TYPE_BYTE: printf("byte"); break;
+            case TYPE_WORD: printf("word"); break;
+            case TYPE_ASTRING: printf("autoaligned string"); break;
+            case TYPE_STRING: printf("string"); break;
+            case TYPE_STRING8: printf("string"); break;
+            case TYPE_STRING16: printf("string"); break;
+        }
+        if (PGMLabels[Index].Count != 1) printf("s");
+        printf(" starting at 0x%x", Position);
+        
+        if (PGMLabels[Index].Comment != NULL) {
+            printf(" (%s)", PGMLabels[Index].Comment);
+        }
+        printf("\n");
+    }
 
 	if ((PGMLabels[Index].Type == TYPE_ASTRING) || (PGMLabels[Index].Type == TYPE_STRING) ||
       (PGMLabels[Index].Type == TYPE_STRING8) || (PGMLabels[Index].Type == TYPE_STRING16)) {
@@ -532,20 +551,22 @@ int Tagfile_Process_Data(char *Bitstream, int Position) {
 
 	BytesAdvanced = 0;
 	for (i = 0; i < PGMLabels[Index].Count; i++) {
-		BytesAdvanced += ProcessingFunction(Bitstream, Position + BytesAdvanced, i, Buffer);
+		BytesAdvanced += ProcessingFunction(Bitstream, Position + BytesAdvanced, i, Buffer, quiet);
 	}
 
 	if (PGMLabels[Index].Type == TYPE_ASTRING) {
 		/* Autoaligned string */
 		if ((BytesAdvanced % 2) != 0) {
 			/* Not yet aligned correctly */
-			if (Bitstream[Position + BytesAdvanced] != 0x00) fprintf(stderr, "Warning in autoalignment: expected zero but got 0x%0x padding. Ignored.\n", ((unsigned char*)Bitstream)[Position + BytesAdvanced]);
-			printf(".byte 0x%02x		; String Autoalignment\n", ((unsigned char*)Bitstream)[Position + BytesAdvanced]);
+            if(!quiet){
+                if (Bitstream[Position + BytesAdvanced] != 0x00) fprintf(stderr, "Warning in autoalignment: expected zero but got 0x%0x padding. Ignored.\n", ((unsigned char*)Bitstream)[Position + BytesAdvanced]);
+                printf(".byte 0x%02x		; String Autoalignment\n", ((unsigned char*)Bitstream)[Position + BytesAdvanced]);
+            }
 			BytesAdvanced++;
 		}
 	}
 	
-	printf("\n");
+	if(!quiet) printf("\n");
 	return BytesAdvanced;
 }
 

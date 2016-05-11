@@ -106,7 +106,7 @@ void Disassemble(char *Filename) {
 	if ((Options.Process_Labels == 1) || ((!Options.Show_PseudoCode) && (Options.CodeStyle == CODESTYLE_AVRGCC))) {
 		/* Preprocess to gather jump labels or to gain knowledge about registers which are being used */
 		while (Pos < Read) {
-            Added = Tagfile_Process_Data(Bitstream, Pos);
+            Added = Tagfile_Process_Data(Bitstream, Pos, 1);
             if (Added != 0) {
                 /* Data was added */
                 Pos += Added;
@@ -134,7 +134,7 @@ void Disassemble(char *Filename) {
 	while (Pos < Read) {
 
 		/* Check if this is actually code or maybe only data from tagfile */
-		Added = Tagfile_Process_Data(Bitstream, Pos);
+		Added = Tagfile_Process_Data(Bitstream, Pos, 0);
 		if (Added != 0) {
 			/* Data was added */
 			Pos += Added;
