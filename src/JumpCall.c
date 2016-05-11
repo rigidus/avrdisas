@@ -309,6 +309,9 @@ void Print_JumpCalls(int Position) {
         } else {
             if(LabelComment) {
                  printf("; %s", LabelComment);
+            } else {
+                LabelName = Get_Label_Name(Position, &LabelComment);
+                printf("%s:", LabelName);
             }
         }
         printf("\n");
