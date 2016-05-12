@@ -131,23 +131,16 @@ int Recurse_Entrypoint(char * Bitstream, int * previous_stack, int depth){
     }
 
     int retval = -1;
-    /*printf("Depth: %u\n", depth);*/
 
     while(Address){
-        /*int Opcode = Get_Next_Opcode(Bitstream + Address);*/
         int isret = Match_Opcode(Opcodes[Opcode_idx_ret].Opcode_String, Bitstream + Address);
         int TagIndex;
-        /*printf("At addr %04x, opcode %u\n", Address, Opcode);*/
         if(isret){
-            /*printf("Is return!\n");*/
-            /*retval = Address+2;*/
             return -1;
-            /*goto out;*/
         }
 
         TagIndex = Tagfile_FindLabelAddress(Address);
         if(TagIndex != -1 && Tagfile_GetLabel(TagIndex)){
-            /*printf("Found function %s\n", Tagfile_GetLabel(TagIndex));*/
             retval = Address;
             goto out;
         }
@@ -155,12 +148,9 @@ int Recurse_Entrypoint(char * Bitstream, int * previous_stack, int depth){
         for(i = 0; i < JumpCall_Count; i++){
             if(JumpCalls[i].To == Address){
                 if(JumpCalls[i].ContainingFunction >= 0){
-                    /*printf("Found previously known calling function here from %04x!\n", JumpCalls[i].ContainingFunction);*/
                     return JumpCalls[i].ContainingFunction;
                 }
-                /*printf("Found jump to here from %04x!\n", JumpCalls[i].From);*/
                 recursions_stack[depth+1] = JumpCalls[i].From;
-                /*printf("Recursing...\n");*/
                 int result = Recurse_Entrypoint(Bitstream, recursions_stack+depth+1, depth+1);
                 if(result != -1){
                     retval = result;
@@ -168,9 +158,7 @@ int Recurse_Entrypoint(char * Bitstream, int * previous_stack, int depth){
                 }
             }
             if(JumpCalls[i].From == Address){
-                /*printf("Found jump from here to %04x!\n", JumpCalls[i].To);*/
                 if(JumpCalls[i].ContainingFunction >= 0){
-                    /*printf("Found previously known contained function here from %04x!\n", JumpCalls[i].ContainingFunction);*/
                     return JumpCalls[i].ContainingFunction;
                 }
             }
@@ -192,21 +180,12 @@ out: {
 void Label_JumpCalls(char* Bitstream){
     int i;
     for(i = 0; i < JumpCall_Count; i++){
-        /*int callee = JumpCalls[i].To;*/
-        /*int TagIndex;*/
-        /*TagIndex = Tagfile_FindLabelAddress(callee);*/
         if(JumpCalls[i].FunctionCall){
-            /*printf("Function call to function %s at %04x from %04x\n", Tagfile_GetLabel(TagIndex), JumpCalls[i].To, JumpCalls[i].From);*/
             int caller = Recurse_Entrypoint(Bitstream, &JumpCalls[i].From, 0);
             JumpCalls[i].ContainingFunction = caller;
-            /*TagIndex = Tagfile_FindLabelAddress(caller);*/
-            /*printf("Label %04x called by function %s at %04x (%04x)\n", JumpCalls[i].To, Tagfile_GetLabel(TagIndex), JumpCalls[i].From, JumpCalls[i].ContainingFunction);*/
         } else {
-            /*printf("Jump to label at %04x from %04x\n", JumpCalls[i].To, JumpCalls[i].From);*/
             int caller = Recurse_Entrypoint(Bitstream, &JumpCalls[i].From, 0);
             JumpCalls[i].ContainingFunction = caller;
-            /*TagIndex = Tagfile_FindLabelAddress(caller);*/
-            /*printf("Label %04x jumped to by function %s at %04x (%04x)\n", JumpCalls[i].To, Tagfile_GetLabel(TagIndex), JumpCalls[i].From, JumpCalls[i].ContainingFunction);*/
         }
     }
 }
@@ -234,7 +213,7 @@ void Enumerate_Labels(char* Bitstream) {
 		if (JumpCalls[i].FunctionCall) JumpCalls[i].LabelNumber = CurrentFunctionNumber;
 			else JumpCalls[i].LabelNumber = CurrentLabelNumber;
 	}
-    Label_JumpCalls(Bitstream);
+    // Label_JumpCalls(Bitstream);
 }
 
 char *Get_Label_Name(int Destination, char **LabelComment) {
@@ -284,6 +263,7 @@ void Print_JumpCalls(int Position) {
                 printf("\n");
 				Match = 1;
 			}
+            /*
             const char* caller;
             if(JumpCalls[i].ContainingFunction >= 0){
                 caller = Get_Containing_Label(JumpCalls[i].ContainingFunction);
@@ -291,6 +271,8 @@ void Print_JumpCalls(int Position) {
                 caller = Get_Containing_Label(JumpCalls[i].From);
             }
             printf("; Referenced from offset 0x%02x <%s> by %s\n", JumpCalls[i].From, caller, MNemonic[JumpCalls[i].Type]);
+            */
+            printf("; Referenced from offset 0x%02x by %s\n", JumpCalls[i].From, MNemonic[JumpCalls[i].Type]);
 		}
 	}
     int TagIndex = Tagfile_FindLabelAddress(Position);
